@@ -187,7 +187,7 @@ namespace QLThuPhiDienNuoc
                 else
                 {
                     LamMoiTruongHoaDon();
-                    lblTrangThaiTinhTien.Text = "Tháng này chưa có hóa đơn được chốt.";
+                    lblTrangThaiTinhTien.Text = "Tháng này chưa có hóa đơn được lưu.";
                     lblTrangThaiTinhTien.ForeColor = Color.Gray;
                 }
             }

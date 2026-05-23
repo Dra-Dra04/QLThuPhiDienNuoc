@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges11 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges12 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
@@ -246,6 +247,7 @@
             label8 = new Label();
             label7 = new Label();
             label6 = new Label();
+            guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(components);
             pnlBangDieuKhien.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             pnlTinhTien.SuspendLayout();
@@ -1959,6 +1961,12 @@
             label6.TabIndex = 89;
             label6.Text = "THANH TOÁN";
             // 
+            // guna2DragControl1
+            // 
+            guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
+            guna2DragControl1.TargetControl = pnlBangDieuKhien;
+            guna2DragControl1.UseTransparentDrag = true;
+            // 
             // FrmClient
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -2099,5 +2107,6 @@
         private Guna.UI2.WinForms.Guna2Button BtnHoanThanh;
         private Label label15;
         private PictureBox PicQRCode;
+        private Guna.UI2.WinForms.Guna2DragControl guna2DragControl1;
     }
 }

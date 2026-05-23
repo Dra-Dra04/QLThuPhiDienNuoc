@@ -37,11 +37,11 @@ namespace QLThuPhiDienNuoc
         {
             InitializeComponent();
             taiKhoanHienTai = tk;
-            if(lblTenNguoiDung != null)
+            if (lblTenNguoiDung != null)
             {
                 lblTenNguoiDung.Text = taiKhoanHienTai.HoTen;
             }
-            
+
         }
         private void FrmAdmin_Load(object sender, EventArgs e)
         {
@@ -176,6 +176,100 @@ namespace QLThuPhiDienNuoc
             }
         }
 
+        private void LoadDuLieuTinhTien()
+        {
+            // 1. Kiểm tra rào chặn
+            if (CbbMaHoDan.SelectedItem == null || CbbThang.SelectedItem == null || CbbNam.SelectedItem == null) return;
+
+            string maHo = CbbMaHoDan.Text;
+            int thang = Convert.ToInt32(CbbThang.Text);
+            int nam = Convert.ToInt32(CbbNam.Text);
+
+            try
+            {
+                DataTable dtBangGia = bllBangGia.LayBangGiaApDung(thang, nam);
+                int maBangGia = 0;
+                int phanTramThue = 0;
+
+                if (dtBangGia != null && dtBangGia.Rows.Count > 0)
+                {
+                    maBangGia = Convert.ToInt32(dtBangGia.Rows[0]["ID"]);
+                    phanTramThue = Convert.ToInt32(dtBangGia.Rows[0]["PhanTramThue"]);
+                    TxtMaBangGia.Text = maBangGia.ToString();
+                    TxtPhanTramThue.Text = phanTramThue.ToString() + "%";
+                }
+
+                DataTable dtChiSo = bllHoaDon.LayThongTinGhiChiSo(maHo, thang, nam);
+                if (dtChiSo == null || dtChiSo.Rows.Count == 0)
+                {
+                    // NẾU CHƯA CÓ CHỈ SỐ: Xóa trắng form, Khóa mọi thứ
+                    TxtSoDien.Text = ""; TxtSoNuoc.Text = "";
+                    BtnLuu.Enabled = false;
+                    BtnXemChiTiet.Enabled = false;
+                    lblTrangThaiTinhTien.Text = "Hộ này chưa ghi chỉ số tháng này!";
+                    return;
+                }
+
+                TxtTTTenChuHo.Text = dtChiSo.Rows[0]["TenChuHo"].ToString();
+                double soDien = Convert.ToDouble(dtChiSo.Rows[0]["SoDien"]);
+                double soNuoc = Convert.ToDouble(dtChiSo.Rows[0]["SoNuoc"]);
+                TxtSoDien.Text = soDien.ToString();
+                TxtSoNuoc.Text = soNuoc.ToString();
+
+                // Kiểm tra Hóa đơn trong CSDL
+                DataTable dtHoaDonCu = bllHoaDon.LayHoaDonDaTonTai(maHo, thang, nam);
+
+                if (dtHoaDonCu != null && dtHoaDonCu.Rows.Count > 0)
+                {
+                    // =========================================================
+                    // TRẠNG THÁI 1: ĐÃ LƯU TRONG CSDL
+                    // =========================================================
+                    DataRow hd = dtHoaDonCu.Rows[0];
+                    TxtThanhTienDien.Text = Convert.ToDecimal(hd["TienDien"]).ToString("N0") + " VNĐ";
+                    TxtThanhTienNuoc.Text = Convert.ToDecimal(hd["TienNuoc"]).ToString("N0") + " VNĐ";
+                    TxtTongThu.Text = Convert.ToDecimal(hd["TongTien"]).ToString("N0") + " VNĐ";
+                    CbbTrangThai.Text = hd["TrangThai"].ToString();
+
+                    lblTrangThaiTinhTien.Text = "Hóa đơn này đã lưu";
+                    lblTrangThaiTinhTien.ForeColor = Color.Green;
+
+                    BtnLuu.Text = "Đã lưu";
+                    BtnLuu.Enabled = false;       
+                    BtnXemChiTiet.Enabled = true; 
+                    BtnXuatHoaDon.Enabled = true;
+                }
+                else
+                {
+                    // =========================================================
+                    // TRẠNG THÁI 2: CHƯA LƯU (BẢNG TÍNH NHÁP)
+                    // =========================================================
+                    if (maBangGia > 0)
+                    {
+                        decimal tienDien = TinhTienTheoBacThang(maBangGia, "Dien", soDien);
+                        decimal tienNuoc = TinhTienTheoBacThang(maBangGia, "Nuoc", soNuoc);
+
+                        TxtThanhTienDien.Text = tienDien.ToString("N0") + " VNĐ";
+                        TxtThanhTienNuoc.Text = tienNuoc.ToString("N0") + " VNĐ";
+                        decimal tongTien = (tienDien + tienNuoc) + ((tienDien + tienNuoc) * phanTramThue / 100);
+                        TxtTongThu.Text = tongTien.ToString("N0") + " VNĐ";
+                        CbbTrangThai.Text = "Chưa nộp";
+
+                        lblTrangThaiTinhTien.Text = "Bảng tính nháp";
+                        lblTrangThaiTinhTien.ForeColor = Color.Orange;
+
+                        BtnLuu.Text = "Lưu";
+                        BtnLuu.Enabled = true;        
+                        BtnXemChiTiet.Enabled = false;
+                        BtnXuatHoaDon.Enabled = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi hiển thị dữ liệu: " + ex.Message);
+            }
+        }
+
         private void BtnClosed_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn đóng hệ thống?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -232,9 +326,9 @@ namespace QLThuPhiDienNuoc
             {
                 MessageBox.Show("Thêm hộ dân thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadDanhSachHoDan();
-                pnlThemHoDan.Visible = false;
-                pnlQuanLyHoDan.Visible = true;
-                pnlQuanLyHoDan.BringToFront();
+                //pnlThemHoDan.Visible = false;
+                //pnlQuanLyHoDan.Visible = true;
+                //pnlQuanLyHoDan.BringToFront();
 
             }
             else
@@ -1025,6 +1119,7 @@ namespace QLThuPhiDienNuoc
 
         private void CbbNam_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LoadDuLieuTinhTien();
             if (CbbMaHoDan.SelectedItem == null || CbbThang.SelectedItem == null || CbbNam.SelectedItem == null) return;
 
             string maHo = CbbMaHoDan.Text;
@@ -1070,7 +1165,7 @@ namespace QLThuPhiDienNuoc
 
                     if (lblTrangThaiTinhTien != null)
                     {
-                        lblTrangThaiTinhTien.Text = "* Hóa đơn này đã được chốt sổ trong CSDL";
+                        lblTrangThaiTinhTien.Text = "Hóa đơn này đã lưu";
                         lblTrangThaiTinhTien.ForeColor = Color.Green;
                     }
                 }
@@ -1096,7 +1191,7 @@ namespace QLThuPhiDienNuoc
 
                         if (lblTrangThaiTinhTien != null)
                         {
-                            lblTrangThaiTinhTien.Text = "* Bảng tính nháp (Chưa lưu CSDL)";
+                            lblTrangThaiTinhTien.Text = "Bảng tính nháp";
                             lblTrangThaiTinhTien.ForeColor = Color.Orange;
                         }
                     }
@@ -1112,7 +1207,7 @@ namespace QLThuPhiDienNuoc
         {
             pnlTinhTien.Visible = true;
             pnlTinhTien.BringToFront();
-
+            LamMoiGiaoDienTinhTien();
             LoadComboBoxTinhTien();
         }
         private void LoadComboBoxTinhTien()
@@ -1195,7 +1290,7 @@ namespace QLThuPhiDienNuoc
 
                     if (lblTrangThaiTinhTien != null)
                     {
-                        lblTrangThaiTinhTien.Text = $"* Hóa đơn này {trangThaiMoi.ToLower()}";
+                        lblTrangThaiTinhTien.Text = $"Hóa đơn này {trangThaiMoi.ToLower()}";
                         lblTrangThaiTinhTien.ForeColor = trangThaiMoi == "Đã nộp" ? Color.Green : Color.Red;
                     }
                 }
@@ -1250,9 +1345,10 @@ namespace QLThuPhiDienNuoc
 
                     if (lblTrangThaiTinhTien != null)
                     {
-                        lblTrangThaiTinhTien.Text = " Hóa đơn này đã được chốt sổ trong CSDL";
+                        lblTrangThaiTinhTien.Text = " Hóa đơn này đã lưu";
                         lblTrangThaiTinhTien.ForeColor = Color.Green;
                     }
+                    LoadDuLieuTinhTien();
                 }
             }
             catch (Exception ex)
@@ -1346,7 +1442,7 @@ namespace QLThuPhiDienNuoc
                     guna2DataGridView5.Columns["Thành tiền"].DefaultCellStyle.Format = "N0";
                 }
 
-                pnlTinhTien.Visible = false; 
+                pnlTinhTien.Visible = false;
                 PnlChiTietHoaDon.Visible = true;
                 PnlChiTietHoaDon.BringToFront();
             }
@@ -1538,6 +1634,59 @@ namespace QLThuPhiDienNuoc
             {
                 MessageBox.Show("Lỗi khi tải biểu đồ lịch sử: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BtnBackQuanLyTaiKhoam_Click(object sender, EventArgs e)
+        {
+            pnlQuanLyTaiKhoan.Visible = true;
+            pnlSuaTaiKhoan.Visible = false;
+            pnlQuanLyTaiKhoan.BringToFront();
+        }
+
+        private void BtnBackPnlQuanLyTaiKhoan_Click(object sender, EventArgs e)
+        {
+            pnlQuanLyTaiKhoan.Visible = true;
+            pnlThemTaiKhoan.Visible = false;
+            pnlQuanLyTaiKhoan.BringToFront();
+        }
+
+        private void BtnBackBangGia_Click(object sender, EventArgs e)
+        {
+            pnlThemBangGiaMoi.Visible = false;
+            pnlBangGia.Visible = true;
+            pnlBangGia.BringToFront();
+        }
+        private void LamMoiGiaoDienTinhTien()
+        {
+            CbbNam.SelectedIndexChanged -= CbbNam_SelectedIndexChanged;
+
+            CbbMaHoDan.SelectedIndex = -1;
+            CbbThang.SelectedIndex = -1;
+            CbbNam.SelectedIndex = -1;
+
+            TxtTTTenChuHo.Text = "";
+            TxtMaBangGia.Text = "";
+            TxtSoDien.Text = "";
+            TxtSoNuoc.Text = "";
+            TxtThanhTienDien.Text = "";
+            TxtThanhTienNuoc.Text = "";
+            TxtTongThu.Text = "";
+            TxtPhanTramThue.Text = "";
+            CbbTrangThai.SelectedIndex = -1;
+
+            BtnLuu.Text = "Lưu";
+            BtnLuu.Enabled = false;
+            BtnXemChiTiet.Enabled = false;
+            BtnXuatHoaDon.Enabled = false;
+            if (BtnUpdateTinhTien != null) BtnUpdateTinhTien.Enabled = false;
+
+            if (lblTrangThaiTinhTien != null)
+            {
+                lblTrangThaiTinhTien.Text = "Vui lòng chọn Mã hộ dân, Tháng và Năm";
+                lblTrangThaiTinhTien.ForeColor = Color.Black;
+            }
+
+            CbbNam.SelectedIndexChanged += CbbNam_SelectedIndexChanged;
         }
     }
 }

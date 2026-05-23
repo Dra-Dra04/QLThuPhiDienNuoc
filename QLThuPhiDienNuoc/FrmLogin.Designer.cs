@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmLogin));
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
@@ -87,6 +88,7 @@
             label7 = new Label();
             label6 = new Label();
             label5 = new Label();
+            guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(components);
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             pnlDangNhap.SuspendLayout();
@@ -530,6 +532,12 @@
             label5.Text = "Đăng ký";
             label5.Click += label5_Click;
             // 
+            // guna2DragControl1
+            // 
+            guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
+            guna2DragControl1.TargetControl = panel1;
+            guna2DragControl1.UseTransparentDrag = true;
+            // 
             // FrmLogin
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -582,5 +590,6 @@
         private Guna.UI2.WinForms.Guna2DateTimePicker DtpNgaySinh;
         private Guna.UI2.WinForms.Guna2Button btnClose;
         private Guna.UI2.WinForms.Guna2Button BtnBack;
+        private Guna.UI2.WinForms.Guna2DragControl guna2DragControl1;
     }
 }

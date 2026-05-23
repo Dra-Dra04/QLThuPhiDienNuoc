@@ -74,7 +74,7 @@ namespace QLThuPhiDienNuoc
             }
 
         }
-
+ 
         private void btnRegister_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(TxtDKSDT.Text) || string.IsNullOrEmpty(TxtPassword.Text) ||
