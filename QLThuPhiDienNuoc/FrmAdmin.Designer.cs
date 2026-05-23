@@ -731,6 +731,7 @@
             // 
             // lblTenNguoiDung
             // 
+            lblTenNguoiDung.AutoSize = true;
             lblTenNguoiDung.BackColor = Color.Transparent;
             lblTenNguoiDung.Font = new Font("Times New Roman", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTenNguoiDung.ForeColor = SystemColors.Control;
@@ -4423,6 +4424,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1150, 750);
+            Controls.Add(pnlThongKe);
             Controls.Add(PnlChiTietHoaDon);
             Controls.Add(pnlTinhTien);
             Controls.Add(pnlProfile);
@@ -4430,6 +4432,7 @@
             Controls.Add(pnlThongKe);
             Controls.Add(pnlSuaTaiKhoan);
             Controls.Add(pnlThemTaiKhoan);
+            Controls.Add(pnlProfile);
             Controls.Add(pnlThemBangGiaMoi);
             Controls.Add(pnlChiTietBangGia);
             Controls.Add(pnlBangGia);
@@ -4443,6 +4446,7 @@
             Load += FrmAdmin_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             pnlBangDieuKhien.ResumeLayout(false);
+            pnlBangDieuKhien.PerformLayout();
             pnlQuanLyHoDan.ResumeLayout(false);
             pnlQuanLyHoDan.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)DgvDanhSachHoDan).EndInit();
